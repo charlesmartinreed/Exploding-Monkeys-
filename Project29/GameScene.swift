@@ -22,16 +22,62 @@ class GameScene: SKScene {
     
     //MARK:- PROPERTIES
     var buildings = [BuildingNode]()
+   
+    var player1: SKSpriteNode!
+    var player2: SKSpriteNode!
+    var banana: SKSpriteNode!
+    
+    var currentPlayer = 1
     
     override func didMove(to view: SKView) {
         
         //give the scene a dark blue color to represent night sky
         backgroundColor = UIColor(hue: 0.669, saturation: 0.99, brightness: 0.67, alpha: 1)
         
-        //call createBuildings
+        //put the buildings and monkeys on the scree
         createBuildings()
+        createPlayers()
+        
     }
    
+    //MARK:- Player init
+    func createPlayers() {
+        //create a player sprite and name it player1
+        player1 = SKSpriteNode(imageNamed: "player")
+        player1.name = "player1"
+        
+        //create a physics body for the player that collides with bananas, set it not to be dynamic
+        player1.physicsBody = SKPhysicsBody(circleOfRadius: player1.size.width / 2)
+        player1.physicsBody?.categoryBitMask = CollisionTypes.player.rawValue
+        player1.physicsBody?.collisionBitMask = CollisionTypes.banana.rawValue
+        player1.physicsBody?.contactTestBitMask = CollisionTypes.banana.rawValue
+        player1.physicsBody?.isDynamic = false
+        
+        //position player at top of the second building in the array
+        let player1Building = buildings[1]
+        //player1.size.height because SpriteKit measures from the center of the sprite.
+        player1.position = CGPoint(x: player1Building.position.x, y: player1Building.position.y + ((player1Building.size.height + player1.size.height) / 2))
+        
+        //add player to the scene
+        addChild(player1)
+        
+        //create player 2
+        player2 = SKSpriteNode(imageNamed: "player")
+        player2.name = "player2"
+        
+        player2.physicsBody = SKPhysicsBody(circleOfRadius: player2.size.width / 2)
+        player2.physicsBody?.categoryBitMask = CollisionTypes.player.rawValue
+        player2.physicsBody?.collisionBitMask = CollisionTypes.banana.rawValue
+        player2.physicsBody?.contactTestBitMask = CollisionTypes.banana.rawValue
+        player2.physicsBody?.isDynamic = false
+        
+        let player2Building = buildings[buildings.count - 2]
+        player2.position = CGPoint(x: player2Building.position.x, y: player2Building.position.y + ((player2Building.size.height + player2.size.height) / 2))
+        
+        addChild(player2)
+    }
+    
+    //MARK:- Building init
     func createBuildings() {
         //move horizontally across the screen, filling space with buildings of various sizes until hitting far edge of screen. Starting at -15 on left. 2 point gap between buildings.
         
@@ -53,7 +99,72 @@ class GameScene: SKScene {
         }
     }
     
+    //MARK:- Degrees to radians conversion
+    func deg2rad(degrees: Int) -> Double {
+        return Double(degrees) * Double.pi / 180.0
+    }
+    
+    //MARK:- Game logic
     func launch(angle: Int, velocity: Int) {
+        //figure out how hard to throw banana. Take velocity param and divide by 10, by default.
+        let speed = Double(velocity) / 10
+        
+        //convert input angle to radians. Assume input is degrees.
+        let radians = deg2rad(degrees: angle)
+        
+        //if banana already exists, remove it and create a new one using circle physics.
+        if banana != nil {
+            banana.removeFromParent()
+            banana = nil
+        }
+        
+        //if player 1 was throwing the banana, position it up and to left and give it some spin.
+        banana = SKSpriteNode(imageNamed: "banana")
+        banana.name = "banana"
+        banana.physicsBody = SKPhysicsBody(circleOfRadius: banana.size.width / 2)
+        banana.physicsBody?.categoryBitMask = CollisionTypes.banana.rawValue
+        banana.physicsBody?.collisionBitMask = CollisionTypes.building.rawValue | CollisionTypes.player.rawValue
+        banana.physicsBody?.contactTestBitMask = CollisionTypes.building.rawValue | CollisionTypes.player.rawValue
+        //set this so that the physics sim can properly handle our small, fast object
+        banana.physicsBody?.usesPreciseCollisionDetection = true
+        addChild(banana)
+        
+        if currentPlayer == 1 {
+            banana.position = CGPoint(x: player1.position.x - 30, y: player1.position.y + 40)
+            banana.physicsBody?.angularVelocity = -20
+            
+            //Animate player 1 throwing arm up and putting it back down
+            let raiseArm = SKAction.setTexture(SKTexture(imageNamed: "player1Throw"))
+            let lowerArm = SKAction.setTexture(SKTexture(imageNamed: "player"))
+            let pause = SKAction.wait(forDuration: 0.15)
+            let sequence = SKAction.sequence([raiseArm, pause, lowerArm])
+            player1.run(sequence)
+            
+            //Make the banana move in the correct diretion
+            //cosine of our angle in radians = horizontal momentum to apply to banana
+            //sine of our angle in radians = vertical momentum to apply to banana
+            //multiply that moment by calculated velocity or -calculated velocity for player2 and turn it into a CGVector
+            
+            let impulse = CGVector(dx: cos(radians) * speed, dy: sin(radians) * speed)
+            
+            //use applyImpulse on the banana physics body to push it in a given direction
+            banana.physicsBody?.applyImpulse(impulse)
+        } else {
+            //if player 2 was throwing banana, position it up and to the RIGHT, apply an opposite spin and make it move in the correct direction
+            banana.position = CGPoint(x: player2.position.x + 30, y: player2.position.y + 40)
+            banana.physicsBody?.angularVelocity = 20
+            
+            let raiseArm = SKAction.setTexture(SKTexture(imageNamed: "player2Throw"))
+            let lowerArm = SKAction.setTexture(SKTexture(imageNamed: "player"))
+            let pause = SKAction.wait(forDuration: 0.15)
+            let sequence = SKAction.sequence([raiseArm, pause, lowerArm])
+            player2.run(sequence)
+            
+            let impulse = CGVector(dx: cos(radians) * -speed, dy: sin(radians) * -speed)
+            banana.physicsBody?.applyImpulse(impulse)
+        }
+        
+        
         
     }
 }

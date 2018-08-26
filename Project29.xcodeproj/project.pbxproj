@@ -16,6 +16,9 @@
 		8CAE50CD2133414D004B037C /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8CAE50CB2133414D004B037C /* LaunchScreen.storyboard */; };
 		8CAE50D52133419F004B037C /* Helper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CAE50D42133419F004B037C /* Helper.swift */; };
 		8CAE50D7213341D0004B037C /* BuildingNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CAE50D6213341D0004B037C /* BuildingNode.swift */; };
+		8CAE50F021336F87004B037C /* Assets.atlas in Resources */ = {isa = PBXBuildFile; fileRef = 8CAE50EF21336F87004B037C /* Assets.atlas */; };
+		8CAE50F321336F9D004B037C /* hitPlayer.sks in Resources */ = {isa = PBXBuildFile; fileRef = 8CAE50F121336F9C004B037C /* hitPlayer.sks */; };
+		8CAE50F421336F9D004B037C /* hitBuilding.sks in Resources */ = {isa = PBXBuildFile; fileRef = 8CAE50F221336F9D004B037C /* hitBuilding.sks */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -30,6 +33,9 @@
 		8CAE50CE2133414D004B037C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8CAE50D42133419F004B037C /* Helper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Helper.swift; sourceTree = "<group>"; };
 		8CAE50D6213341D0004B037C /* BuildingNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BuildingNode.swift; sourceTree = "<group>"; };
+		8CAE50EF21336F87004B037C /* Assets.atlas */ = {isa = PBXFileReference; lastKnownFileType = folder.skatlas; path = Assets.atlas; sourceTree = "<group>"; };
+		8CAE50F121336F9C004B037C /* hitPlayer.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = hitPlayer.sks; sourceTree = "<group>"; };
+		8CAE50F221336F9D004B037C /* hitBuilding.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = hitBuilding.sks; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -65,11 +71,14 @@
 				8CAE50BC2133414C004B037C /* AppDelegate.swift */,
 				8CAE50D42133419F004B037C /* Helper.swift */,
 				8CAE50BE2133414C004B037C /* GameScene.sks */,
+				8CAE50F221336F9D004B037C /* hitBuilding.sks */,
+				8CAE50F121336F9C004B037C /* hitPlayer.sks */,
 				8CAE50C22133414C004B037C /* GameScene.swift */,
 				8CAE50D6213341D0004B037C /* BuildingNode.swift */,
 				8CAE50C42133414C004B037C /* GameViewController.swift */,
 				8CAE50C62133414C004B037C /* Main.storyboard */,
 				8CAE50C92133414D004B037C /* Assets.xcassets */,
+				8CAE50EF21336F87004B037C /* Assets.atlas */,
 				8CAE50CB2133414D004B037C /* LaunchScreen.storyboard */,
 				8CAE50CE2133414D004B037C /* Info.plist */,
 			);
@@ -136,6 +145,9 @@
 			files = (
 				8CAE50C82133414C004B037C /* Main.storyboard in Resources */,
 				8CAE50BF2133414C004B037C /* GameScene.sks in Resources */,
+				8CAE50F321336F9D004B037C /* hitPlayer.sks in Resources */,
+				8CAE50F421336F9D004B037C /* hitBuilding.sks in Resources */,
+				8CAE50F021336F87004B037C /* Assets.atlas in Resources */,
 				8CAE50CA2133414D004B037C /* Assets.xcassets in Resources */,
 				8CAE50CD2133414D004B037C /* LaunchScreen.storyboard in Resources */,
 			);
