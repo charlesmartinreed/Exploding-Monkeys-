@@ -17,6 +17,9 @@ enum CollisionTypes: UInt32 {
 
 class GameScene: SKScene {
     
+    //reference to the view controller, enabling direct communication between them
+    weak var viewController: GameViewController!
+    
     //MARK:- PROPERTIES
     var buildings = [BuildingNode]()
     
@@ -48,5 +51,9 @@ class GameScene: SKScene {
             
             buildings.append(building)
         }
+    }
+    
+    func launch(angle: Int, velocity: Int) {
+        
     }
 }
