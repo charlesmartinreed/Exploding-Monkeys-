@@ -15,7 +15,7 @@ enum CollisionTypes: UInt32 {
     case player = 4
 }
 
-class GameScene: SKScene {
+class GameScene: SKScene, SKPhysicsContactDelegate {
     
     //reference to the view controller, enabling direct communication between them
     weak var viewController: GameViewController!
@@ -30,6 +30,9 @@ class GameScene: SKScene {
     var currentPlayer = 1
     
     override func didMove(to view: SKView) {
+        
+        //setting the physics world delegate
+        physicsWorld.contactDelegate = self
         
         //give the scene a dark blue color to represent night sky
         backgroundColor = UIColor(hue: 0.669, saturation: 0.99, brightness: 0.67, alpha: 1)
@@ -160,11 +163,113 @@ class GameScene: SKScene {
             let sequence = SKAction.sequence([raiseArm, pause, lowerArm])
             player2.run(sequence)
             
-            let impulse = CGVector(dx: cos(radians) * -speed, dy: sin(radians) * -speed)
+            let impulse = CGVector(dx: cos(radians) * -speed, dy: sin(radians) * speed)
             banana.physicsBody?.applyImpulse(impulse)
         }
         
         
+    }
+    
+    //MARK:- Contact logic
+    func didBegin(_ contact: SKPhysicsContact) {
+        //determining whether banana hit building or vice versa
+        var firstBody: SKPhysicsBody
+        var secondBody: SKPhysicsBody
+        
+        if contact.bodyA.categoryBitMask < contact.bodyB.categoryBitMask {
+            firstBody = contact.bodyA
+            secondBody = contact.bodyB
+        } else {
+            firstBody = contact.bodyB
+            secondBody = contact.bodyA
+        }
+        
+        if let firstNode = firstBody.node {
+            if let secondNode = secondBody.node {
+                if firstNode.name == "banana" && secondNode.name == "building" {
+                    bananaHit(building: secondNode as! BuildingNode, atPoint: contact.contactPoint)
+                }
+                
+                if firstNode.name == "banana" && secondNode.name == "player1" {
+                    //player 1 loses
+                    destroy(player: player1)
+                }
+                
+                if firstNode.name == "banana" && secondNode.name == "player2" {
+                    //player 2 loses
+                    destroy(player: player2)
+                }
+            }
+        }
         
     }
+    
+    func bananaHit(building: BuildingNode, atPoint contactPoint: CGPoint) {
+        //convert collision contact point into coordinates relative to building node - if building node was at X:200 and collision was at X:250, it would return X:50 because it was 50 points into the building node.
+        let buildingLocation = convert(contactPoint, to: building)
+        building.hitAt(point: buildingLocation)
+        
+        let explosion = SKEmitterNode(fileNamed: "hitBuilding")!
+        explosion.position = contactPoint
+        addChild(explosion)
+        
+        //prevent banana from hitting building twice - this way the didBegin method won't see our banana as a banana since it has no name
+        banana.name = ""
+        banana.removeFromParent()
+        banana = nil
+        
+        changePlayer()
+        
+    }
+    
+    
+    //MARK:- End game logic
+    func destroy(player: SKSpriteNode) {
+        //make explosion
+        let explosion = SKEmitterNode(fileNamed: "hitPlayer")!
+        explosion.position = player.position
+        addChild(explosion)
+        
+        //remove destroyed player and banana from scene
+        player.removeFromParent()
+        banana?.removeFromParent()
+        
+        //reload the level
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            [unowned self] in
+            let newGame = GameScene(size: self.size)
+            newGame.viewController = self.viewController
+            self.viewController.currentGame = newGame
+            
+            self.changePlayer()
+            newGame.currentPlayer = self.currentPlayer
+            
+            let transition = SKTransition.doorway(withDuration: 1.5)
+            self.view?.presentScene(newGame, transition: transition)
+        }
+    }
+    
+    func changePlayer() {
+        if currentPlayer == 1 {
+            currentPlayer = 2
+        } else {
+            currentPlayer = 1
+        }
+        
+        viewController.activatePlayer(number: currentPlayer)
+    }
+    
+    //what happens if the player misses opponent AND building? When the banana
+    //reaches a certain point off the screen, remove it and change player
+    override func update(_ currentTime: TimeInterval) {
+        if banana != nil {
+            if banana.position.y < -1000 {
+                banana.removeFromParent()
+                banana = nil
+                
+                changePlayer()
+            }
+        }
+    }
+    
 }

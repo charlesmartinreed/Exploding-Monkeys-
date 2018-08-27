@@ -74,5 +74,32 @@ class BuildingNode: SKSpriteNode {
         return img
     }
     
+    func hitAt(point: CGPoint) {
+        //figure out where the building was hit - Sprite kit positions from the center and CG from the bottom left
+        let convertedPoint = CGPoint(x: point.x + size.width / 2.0, y: abs(point.y - (size.height / 2.0)))
+        
+        //create new CG context the size of our current sprite
+        let renderer = UIGraphicsImageRenderer(size: size)
+        
+        //Draw our current building image into the context, full building at first, changing when hit
+        let img = renderer.image { (ctx) in
+            currentImage.draw(at: CGPoint(x: 0, y: 0))
+            
+            //create an ellipse at the collision point, centered on the impact point. Coordinates 32 up and to the left of the collision, 64x64 in size.
+            ctx.cgContext.addEllipse(in: CGRect(x: convertedPoint.x - 32, y: convertedPoint.y - 32, width: 64, height: 64))
+            
+            //set blend mode to .clear, draw the ellipse
+            ctx.cgContext.setBlendMode(.clear)
+            ctx.cgContext.drawPath(using: .fill)
+        }
+        
+        //convert the contents of CG context back into a UIImage. Save this to the currentImage property for the next hit.
+        texture = SKTexture(image: img)
+        currentImage = img
+            
+        //use configurePhysics so SpriteKit will recalculate the per-pixel physics for our damaged building
+        configurePhysics()
+    }
+    
     //stride() lets you loop from one number to another with a specific interval. Can be to a interval or THROUGH an interval.
 }
